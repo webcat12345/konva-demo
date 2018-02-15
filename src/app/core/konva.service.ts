@@ -39,7 +39,7 @@ export class KonvaService {
 
   selectElement(el, selectFlag: boolean) {
     if (selectFlag) {
-      el.attrs.stroke = 'blue';
+      el.attrs.stroke = '#005eff';
       el.attrs.strokeWidth = 2;
     } else {
       el.attrs.stroke = 'white';
@@ -75,7 +75,7 @@ export class KonvaService {
 
     const cx1 = x1 + ELEMENT_WIDTH / 2;
     const cy1 = y1 + ELEMENT_HEIGHT / 2;
-    const cx2 = x2 + ELEMENT_WIDTH / 2;
+    const cx2 = x2;
     const cy2 = y2 + ELEMENT_HEIGHT / 2;
 
     linePoints = [cx1, cy1, cx2, cy2];
@@ -103,12 +103,13 @@ export class KonvaService {
   }
 
   drawLinkLine(e1, e2) {
-    return new Konva.Line({
+    return new Konva.Arrow({
       points: this.calculateLinkLine(e1.attrs.x, e1.attrs.y, e2.attrs.x, e2.attrs.y),
-      stroke: 'blue',
+      stroke: '#545454',
       strokeWidth: 1,
       lineCap: 'round',
       lineJoin: 'round',
+      fill: 'black',
       id: e1.attrs.id + '-' + e2.attrs.id
     });
   }

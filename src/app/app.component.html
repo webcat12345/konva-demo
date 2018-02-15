@@ -1,8 +1,16 @@
-<div class="header-tool-bar">
-  <button (click)="add()">Add new element</button>
-  <button (click)="join()" [disabled]="konvaService.selectedItems.length < 2">Join two elements</button>
+<!--<div class="header-tool-bar">-->
+  <!--<button (click)="add()">Add new element</button>-->
+  <!--<button (click)="join()" [disabled]="konvaService.selectedItems.length < 2">Join two elements</button>-->
+<!--</div>-->
+<div class="header">
+  <div class="logo">Konva</div>
+  <div class="button-group">
+    <a mat-icon-button (click)="join()" [disabled]="konvaService.selectedItems.length < 2">
+      <mat-icon>link</mat-icon>
+    </a>
+  </div>
 </div>
-<div id="konvaboard"></div>
-<div class="property-window">
-
+<div class="main">
+  <app-pallette (add)="add($event)"></app-pallette>
+  <div id="konvaboard"></div>
 </div>

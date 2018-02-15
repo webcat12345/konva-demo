@@ -6,7 +6,7 @@ import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/konva.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit{
 
@@ -28,7 +28,7 @@ export class AppComponent implements AfterViewInit{
     this.stage.add(this.mainLayer);
   }
 
-  add(x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
+  add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
     const imageObj = new Image();
     imageObj.onload = (() => {
       const el = this.konvaService.addNewComponent(imageObj, x, y, w, h);
@@ -47,7 +47,7 @@ export class AppComponent implements AfterViewInit{
       }));
       this.mainLayer.draw();
     });
-    imageObj.src = '/assets/3281-200.png';
+    imageObj.src = `/assets/svg/${type.file}`;
   }
 
   join() {
@@ -68,7 +68,7 @@ export class AppComponent implements AfterViewInit{
   }
 
   componentDragMove(event) {
-    this.stage.find('Line').forEach(line => {
+    this.stage.find('Arrow').forEach(line => {
       const splitter = line.attrs.id.search('-');
       const e1 = this.stage.findOne(`#${line.attrs.id.substring(0, splitter)}`);
       const e2 = this.stage.findOne(`#${line.attrs.id.substring(splitter + 1, line.attrs.id.length)}`);

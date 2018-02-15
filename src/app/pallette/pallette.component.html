@@ -1,0 +1,8 @@
+<div class="pallette-box">
+  <div class="box-header">Tools</div>
+  <div class="button-group">
+    <button *ngFor="let item of types" (click)="add.emit(item)">
+      <img [src]="'assets/svg/' + item.file" width="24" height="24">
+    </button>
+  </div>
+</div>
