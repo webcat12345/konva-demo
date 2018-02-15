@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
+import { KonvaService } from './core/konva.service';
 
 import { AppComponent } from './app.component';
 
@@ -12,7 +12,9 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule
   ],
-  providers: [],
+  providers: [
+    KonvaService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

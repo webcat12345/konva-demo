@@ -1,0 +1,8 @@
+#konvaboard {
+  border: 1px solid black;
+  overflow: hidden;
+}
+
+.header-tool-bar {
+  padding: 10px 0;
+}
