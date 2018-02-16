@@ -14,8 +14,6 @@ export class AppComponent implements AfterViewInit{
   mainLayer: any;
   lineLayer: any;
 
-  lineArray = [];
-
   constructor(
     public konvaService: KonvaService
   ) {}
@@ -57,6 +55,10 @@ export class AppComponent implements AfterViewInit{
     this.konvaService.unSelectAll(this.stage);
     this.lineLayer.draw();
     this.mainLayer.draw();
+  }
+
+  group() {
+
   }
 
   componentClick(event) {

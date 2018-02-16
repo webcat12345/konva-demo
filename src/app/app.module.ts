@@ -8,12 +8,14 @@ import { KonvaService } from './core/konva.service';
 
 import { AppComponent } from './app.component';
 import { PalletteComponent } from './pallette/pallette.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    PalletteComponent
+    PalletteComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,

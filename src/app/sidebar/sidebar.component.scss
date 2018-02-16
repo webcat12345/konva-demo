@@ -1,0 +1,20 @@
+.sidebar-container {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  height: calc(100vh - 100px);
+  background-color: white;
+  margin-left: 12px;
+  box-shadow: 0 2px 3px 1px #6b6b6b;
+  border: 1px solid #9c9c9c;
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: black;
+    color: white;
+    font-size: 12px;
+    text-align: left;
+    padding: 2px 10px;
+  }
+}

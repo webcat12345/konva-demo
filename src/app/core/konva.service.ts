@@ -72,33 +72,35 @@ export class KonvaService {
 
   calculateLinkLine(x1, y1, x2, y2) {
     let linePoints = [];
-
     const cx1 = x1 + ELEMENT_WIDTH / 2;
     const cy1 = y1 + ELEMENT_HEIGHT / 2;
-    const cx2 = x2;
+    const cx2 = x2 + ELEMENT_WIDTH / 2;
     const cy2 = y2 + ELEMENT_HEIGHT / 2;
-
-    linePoints = [cx1, cy1, cx2, cy2];
-
-    // if (x1 < x2) {
-    //   if (y1 < y2) {
-    //     linePoints = [x1 + ELEMENT_WIDTH + 3, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y2 - 3];
-    //   } else if (y1 > y2) {
-    //     linePoints = [x1 + ELEMENT_WIDTH + 3, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y2 + ELEMENT_HEIGHT + 3];
-    //   } else {
-    //     linePoints = [x1 + ELEMENT_WIDTH + 3, y1 + ELEMENT_HEIGHT / 2, x2 - 3, y1 + ELEMENT_HEIGHT / 2];
-    //   }
-    // } else if (x1 > x2) {
-    //   if (y1 < y2) {
-    //     linePoints = [x1 - 3, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y2 - 3];
-    //   } else if (y1 > y2) {
-    //     linePoints = [x1 - 3, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y1 + ELEMENT_HEIGHT / 2, x2 + ELEMENT_WIDTH / 2, y2 + ELEMENT_HEIGHT + 3];
-    //   } else {
-    //     linePoints = [x1 - 3, y1 + ELEMENT_HEIGHT / 2, x2 + 3, y1 + ELEMENT_HEIGHT / 2];
-    //   }
-    // } else if (x1 === x2) {
-    //
-    // }
+    linePoints = [cx1, cy1, cx2, y2 + ELEMENT_HEIGHT];
+    if (((cx2 > cx1) && (cy2 > cy1) && (cx1 < cy1)) || ((cx2 > cx1) && (cy2 < cy1) && ((cy1 - cy2) < (cx2- cx1)))) {
+      linePoints = [cx1, cy1, x2, cy2];
+    }
+    if (((cy2 > cy1) && (cx1 > cy1) && (cx1 < cx2)) || ((cy2 > cy1) && (cx2 < cx1) && (2 * cx2 - cx1) > cy1)) {
+      linePoints = [cx1, cy1, cx2, y2];
+    }
+    if (((cx1 > cx2) && ((cy2 - cy1) < (cx1 - cx2)) && (cy2 > cy1)) || ((cx1 > cx2) && (cy2 < cy1) && ((cx1 - cx2) > (cy1 - cy2)))) {
+      linePoints = [cx1, cy1, x2 + ELEMENT_WIDTH, cy2];
+    }
+    if (((cy1 > cy2) && (cx1 < cx2) && ((cy1 - cy2) > (cx2 - cx1))) || ((cy1 > cy2) && (cx1 > cx2) && ((cy1 - cy2) > (cx1 - cx2)))) {
+      linePoints = [cx1, cy1, cx2, y2 + ELEMENT_HEIGHT];
+    }
+    if ((cy1 === cy2) && (cx1 < cx2)) {
+      linePoints = [cx1, cy1, x2, cy2];
+    }
+    if ((cy1 === cy2) && (cx2 < cx1)) {
+      linePoints = [cx1, cy1, x2 + ELEMENT_WIDTH, cy2];
+    }
+    if ((cy1 < cy2) && (cx2 === cx1)) {
+      linePoints = [cx1, cy1, cx2, y2];
+    }
+    if ((cy1 > cy2) && (cx2 === cx1)) {
+      linePoints = [cx1, cy1, cx2, y2 + ELEMENT_HEIGHT];
+    }
     return linePoints;
   }
 

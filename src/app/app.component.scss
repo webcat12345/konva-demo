@@ -6,6 +6,7 @@
     border: 1px solid black;
     overflow: hidden;
     height: calc(100vh - 200px);
+    width: calc(100vw - 300px);
     background-color: white;
   }
 }
@@ -36,3 +37,8 @@
   }
 }
 
+.property-container {
+  right: 0;
+  width: 300px;
+  background-color: white;
+}
