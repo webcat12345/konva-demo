@@ -1,5 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import * as Konva from 'konva';
+
+export enum POINTER {
+  single = 1,
+  multi = 2
+}
 
 export const ELEMENT_WIDTH = 30;
 export const ELEMENT_HEIGHT = 30;
@@ -7,8 +12,8 @@ export const ELEMENT_HEIGHT = 30;
 @Injectable()
 export class KonvaService {
 
-  stage: any;
   selectedItems = [];
+  showProperty: EventEmitter<any> = new EventEmitter<any>();
 
   get selectedIds() {
     return this.selectedItems;
@@ -47,7 +52,7 @@ export class KonvaService {
     }
   }
 
-  layerClickedEvent(event, stage) {
+  layerClickedEvent(pointer: POINTER, event, stage, type) {
     const index = this.selectedItems.findIndex(x => x === event.target.attrs.id);
     if (index > -1) {
       this.selectElement(event.target, false);
@@ -55,7 +60,8 @@ export class KonvaService {
     } else {
       this.selectElement(event.target, true);
       this.selectedItems.push(event.target.attrs.id);
-      if (this.selectedItems.length > 2) { // selected items should be only 2
+      this.showProperty.emit({type: type, id: event.target.attrs.id});
+      if (this.selectedItems.length > (pointer === POINTER.single ? 1 : 2)) { // selected items should be only 2
         this.selectElement(stage.findOne(`#${this.selectedItems[0]}`), false);
         this.selectedItems.splice(0, 1);
       }

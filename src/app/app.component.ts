@@ -1,6 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { KonvaService } from './core/konva.service';
 import * as Konva from 'konva';
+import { POINTER } from './core/konva.service';
 import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/konva.service';
 
 @Component({
@@ -13,6 +14,7 @@ export class AppComponent implements AfterViewInit{
   stage: any;
   mainLayer: any;
   lineLayer: any;
+  pointer = POINTER.single;
 
   constructor(
     public konvaService: KonvaService
@@ -32,7 +34,7 @@ export class AppComponent implements AfterViewInit{
       const el = this.konvaService.addNewComponent(imageObj, x, y, w, h);
       this.mainLayer.add(el);
       el.on('click', (event => {
-        this.componentClick(event);
+        this.componentClick(event, type);
       }));
       el.on('dragstart', (event => {
         this.componentDragStart(event);
@@ -49,6 +51,9 @@ export class AppComponent implements AfterViewInit{
   }
 
   join() {
+    if (this.konvaService.selectedItems.length < 2) {
+      return;
+    }
     const el_1 = this.stage.findOne(`#${this.konvaService.selectedItems[0]}`);
     const el_2 = this.stage.findOne(`#${this.konvaService.selectedItems[1]}`);
     this.lineLayer.add(this.konvaService.drawLinkLine(el_1, el_2));
@@ -61,8 +66,8 @@ export class AppComponent implements AfterViewInit{
 
   }
 
-  componentClick(event) {
-    this.konvaService.layerClickedEvent(event, this.stage);
+  componentClick(event, type) {
+    this.konvaService.layerClickedEvent(this.pointer, event, this.stage, type);
     this.mainLayer.draw();
   }
 

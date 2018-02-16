@@ -1,10 +1,14 @@
-<!--<div class="header-tool-bar">-->
-  <!--<button (click)="add()">Add new element</button>-->
-  <!--<button (click)="join()" [disabled]="konvaService.selectedItems.length < 2">Join two elements</button>-->
-<!--</div>-->
 <div class="header">
   <div class="logo">Konva</div>
   <div class="button-group">
+    <mat-button-toggle-group #groupSelector="matButtonToggleGroup" (change)="pointer = +$event.value">
+      <mat-button-toggle value="1" checked="true">
+        <mat-icon>done</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="2">
+        <mat-icon>done_all</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
     <a mat-icon-button (click)="join()" [disabled]="konvaService.selectedItems.length < 2">
       <mat-icon>link</mat-icon>
     </a>
