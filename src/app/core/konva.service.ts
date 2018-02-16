@@ -77,10 +77,10 @@ export class KonvaService {
     const cx2 = x2 + ELEMENT_WIDTH / 2;
     const cy2 = y2 + ELEMENT_HEIGHT / 2;
     linePoints = [cx1, cy1, cx2, y2 + ELEMENT_HEIGHT];
-    if (((cx2 > cx1) && (cy2 > cy1) && (cx1 < cy1)) || ((cx2 > cx1) && (cy2 < cy1) && ((cy1 - cy2) < (cx2- cx1)))) {
+    if (((cx2 > cx1) && (cy2 > cy1) && ((cx2 - cx1) > (cy2 - cy1))) || ((cx2 > cx1) && (cy2 < cy1) && ((cy1 - cy2) < (cx2- cx1)))) {
       linePoints = [cx1, cy1, x2, cy2];
     }
-    if (((cy2 > cy1) && (cx1 > cy1) && (cx1 < cx2)) || ((cy2 > cy1) && (cx2 < cx1) && (2 * cx2 - cx1) > cy1)) {
+    if (((cy2 > cy1) && ((cy2 - cy1) > (cx2 - cx1)) && (cx1 < cx2)) || ((cy2 > cy1) && (cx2 < cx1) && (cx1 - cx2) < (cy2 - cy1))) {
       linePoints = [cx1, cy1, cx2, y2];
     }
     if (((cx1 > cx2) && ((cy2 - cy1) < (cx1 - cx2)) && (cy2 > cy1)) || ((cx1 > cx2) && (cy2 < cy1) && ((cx1 - cx2) > (cy1 - cy2)))) {
