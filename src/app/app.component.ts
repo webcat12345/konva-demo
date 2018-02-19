@@ -12,9 +12,12 @@ import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/konva.service';
 export class AppComponent implements AfterViewInit{
 
   stage: any;
+  backgroundLayer: any;
   mainLayer: any;
   lineLayer: any;
   pointer = POINTER.single;
+
+  clickListenerZone: any;
 
   constructor(
     public konvaService: KonvaService
@@ -24,8 +27,31 @@ export class AppComponent implements AfterViewInit{
     this.stage = this.konvaService.createStage('konvaboard', window.innerWidth, window.innerHeight);
     this.mainLayer = new Konva.Layer();
     this.lineLayer = new Konva.Layer();
+    this.backgroundLayer = new Konva.Layer();
+
+    this.stage.add(this.backgroundLayer);
     this.stage.add(this.lineLayer);
     this.stage.add(this.mainLayer);
+
+
+    this.clickListenerZone = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      fill: 'white',
+      stroke: 'black',
+      strokeWidth: 1
+    });
+
+    this.clickListenerZone.on('click', (event) => {
+      this.konvaService.unSelectAll(this.stage);
+      this.mainLayer.draw();
+    });
+
+    // add the click lis  tener zone to the layer
+    this.backgroundLayer.add(this.clickListenerZone);
+    this.backgroundLayer.draw();
   }
 
   add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
