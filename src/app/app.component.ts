@@ -15,6 +15,7 @@ export class AppComponent implements AfterViewInit{
   backgroundLayer: any;
   mainLayer: any;
   lineLayer: any;
+  tempLayer: any;
   pointer = POINTER.single;
 
   clickListenerZone: any;
@@ -30,11 +31,12 @@ export class AppComponent implements AfterViewInit{
     this.mainLayer = new Konva.Layer();
     this.lineLayer = new Konva.Layer();
     this.backgroundLayer = new Konva.Layer();
+    this.tempLayer = new Konva.Layer();
 
     this.stage.add(this.backgroundLayer); // hack background click event
     this.stage.add(this.lineLayer);       // linked lines
     this.stage.add(this.mainLayer);       // component layer
-
+    this.stage.add(this.tempLayer);       // draggin layer
 
     this.clickListenerZone = new Konva.Rect({
       x: 0,
@@ -51,23 +53,34 @@ export class AppComponent implements AfterViewInit{
       this.mainLayer.draw();
     });
 
+    this.handleDragEventOnStage();
+
     // add the click lis  tener zone to the layer
     this.backgroundLayer.add(this.clickListenerZone);
     this.backgroundLayer.draw();
   }
 
   add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
-    const imageObj = new Image();
-    imageObj.onload = (() => {
-      const el = this.konvaService.addNewComponent(imageObj, x, y, w, h);
-      this.mainLayer.add(el);
-      el.on('click', (event => this.componentClick(event, type)));
-      el.on('dragstart', (event => this.componentDragStart(event)));
-      el.on('dragmove', (event => this.componentDragMove(event)));
-      el.on('dragend', (event => this.componentDragEnd(event)));
+    if (type.id === 100 && type.name === 'group') {
+      const res = this.konvaService.addNewGroup();
+      res.rect.on('mousemove', (event) => this.groupMouseCursorHandle(event, 'mousemove'));
+      res.rect.on('mouseout', (event) => this.groupMouseCursorHandle(event, 'mouseout'));
+      res.group.on('dragstart', (event) => this.groupMouseCursorHandle(event, 'dragstart'));
+      res.group.on('dragmove', (event) => this.componentDragMove(event, {name: 'group'}));
+      res.group.on('click', (event) => this.componentClick(event, {name: 'group'}));
+      this.mainLayer.add(res.group);
       this.mainLayer.draw();
-    });
-    imageObj.src = `/assets/svg/${type.file}`;
+    } else {
+      const imageObj = new Image();
+      imageObj.onload = (() => {
+        const el = this.konvaService.addNewComponent(imageObj, x, y, w, h);
+        this.mainLayer.add(el);
+        el.on('click', (event => this.componentClick(event, type)));
+        el.on('dragmove', (event => this.componentDragMove(event)));
+        this.mainLayer.draw();
+      });
+      imageObj.src = `/assets/svg/${type.file}`;
+    }
   }
 
   join() {
@@ -82,26 +95,12 @@ export class AppComponent implements AfterViewInit{
     this.mainLayer.draw();
   }
 
-  group() {
-    const res = this.konvaService.addNewGroup();
-    res.rect.on('mousemove', (event) => this.groupMouseCursorHandle(event, 'mousemove'));
-    res.rect.on('mouseout', (event) => this.groupMouseCursorHandle(event, 'mouseout'));
-    res.group.on('dragstart', (event) => this.groupMouseCursorHandle(event, 'dragstart'));
-    res.group.on('dragmove', (event) => this.componentDragMove(event));
-    res.group.on('click', (event) => this.componentClick(event, {name: 'group'}));
-    this.mainLayer.add(res.group);
-    this.mainLayer.draw();
-  }
-
   componentClick(event, type) {
     this.konvaService.layerClickedEvent(this.pointer, event, this.stage, type);
     this.mainLayer.draw();
   }
 
-  componentDragStart(event) {
-  }
-
-  componentDragMove(event) {
+  componentDragMove(event, type = null) {
     this.stage.find('Arrow').forEach(line => {
       let x1, x2, y1, y2, h1, h2, w1, w2 = 0;
       const splitter = line.attrs.id.search('-');
@@ -155,9 +154,6 @@ export class AppComponent implements AfterViewInit{
     })
   }
 
-  componentDragEnd(event) {
-  }
-
   groupMouseCursorHandle(event, method) {
     if (method === 'mouseout') {
       this.stage.container().style.cursor = 'default';
@@ -179,5 +175,73 @@ export class AppComponent implements AfterViewInit{
       // el.draggable(false);
       // console.log(event.evt.offsetX - this.selectedGroup.parent.x - this.selectedGroup.attrs.width);
     }
+  }
+
+  handleDragEventOnStage() {
+    this.stage.on('dragstart', (e) => {
+      e.target.moveTo(this.tempLayer);
+      this.mainLayer.draw();
+    });
+
+    let previousShape;
+
+    this.stage.on('dragmove', (evt) => {
+      const pos = this.stage.getPointerPosition();
+      const shape = this.mainLayer.getIntersection(pos);
+      if (previousShape && shape && shape.getClassName() === 'Rect') {
+        if (previousShape !== shape) {
+          // leave from old targer
+          previousShape.fire('dragleave', {type : 'dragleave', target : previousShape, evt : evt.evt}, true);
+          // enter new targer
+          shape.fire('dragenter', {type : 'dragenter', target : shape, evt : evt.evt}, true);
+          previousShape = shape;
+        } else {
+          previousShape.fire('dragover', {type : 'dragover', target : previousShape, evt : evt.evt}, true);
+        }
+      } else if (!previousShape && shape && shape.getClassName() === 'Rect') {
+        previousShape = shape;
+        shape.fire('dragenter', {type : 'dragenter', target : shape, evt : evt.evt}, true);
+      } else if (previousShape && !shape) {
+        previousShape.fire('dragleave', {type : 'dragleave', target : previousShape, evt : evt.evt}, true);
+        previousShape = undefined;
+      }
+    });
+
+    this.stage.on('dragend', (e) => {
+      const pos = this.stage.getPointerPosition();
+      const shape = this.mainLayer.getIntersection(pos);
+      let group = null;
+      let rect = null;
+      if (previousShape && shape && shape.getClassName() === 'Rect') {
+        previousShape.fire('drop', {type : 'drop', target : previousShape, evt : e.evt}, true);
+        group = this.stage.findOne(`#${previousShape.parent.getId()}`);
+        rect = this.stage.findOne(`#${previousShape.getId()}`);
+      }
+      previousShape = undefined;
+      e.target.moveTo(this.mainLayer);
+      if (group) {
+        const item = this.stage.findOne(`#${e.target.getId()}`);
+        item.x(this.konvaService.getGroupPosition(group, rect.attrs.width, rect.attrs.height).x);
+        item.y(this.konvaService.getGroupPosition(group, rect.attrs.width, rect.attrs.height).y);
+        item.draggable(false);
+        item.moveTo(group);
+      }
+      this.mainLayer.draw();
+      this.tempLayer.draw();
+    });
+
+    this.stage.on('dragenter', (e) => {
+      e.target.stroke('green');
+      this.mainLayer.draw();
+    });
+
+    this.stage.on('dragleave', (e) => {
+      e.target.stroke('#0094ff');
+      this.mainLayer.draw();
+    });
+
+    this.stage.on('drop', (e) => {
+      this.mainLayer.draw();
+    });
   }
 }

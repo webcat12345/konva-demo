@@ -147,4 +147,11 @@ export class KonvaService {
       id: e1.attrs.id + '-' + e2.attrs.id
     });
   }
+
+  getGroupPosition(group, width, height) {
+    const ox = width / 2;
+    const oy = height / 2;
+    const length = group.children.length - 1;
+    return {y: 10 + ((ELEMENT_HEIGHT + 10) * Math.floor(length / 2)), x: Math.abs(length % 2) == 1 ? 60 : 10};
+  }
 }
