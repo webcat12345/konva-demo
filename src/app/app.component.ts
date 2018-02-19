@@ -29,9 +29,9 @@ export class AppComponent implements AfterViewInit{
     this.lineLayer = new Konva.Layer();
     this.backgroundLayer = new Konva.Layer();
 
-    this.stage.add(this.backgroundLayer);
-    this.stage.add(this.lineLayer);
-    this.stage.add(this.mainLayer);
+    this.stage.add(this.backgroundLayer); // hack background click event
+    this.stage.add(this.lineLayer);       // linked lines
+    this.stage.add(this.mainLayer);       // component layer
 
 
     this.clickListenerZone = new Konva.Rect({
@@ -41,7 +41,7 @@ export class AppComponent implements AfterViewInit{
       height: window.innerHeight,
       fill: 'white',
       stroke: 'black',
-      strokeWidth: 1
+      strokeWidth: 0
     });
 
     this.clickListenerZone.on('click', (event) => {
