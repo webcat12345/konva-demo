@@ -239,6 +239,7 @@ export class AppComponent implements AfterViewInit{
 
     this.clickListenerZone.on('click', (event) => {
       this.konvaService.unSelectAll(this.stage);
+      this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage);
       this.mainLayer.draw();
     });
 
