@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
-import { KonvaService } from '../core/konva.service';
+import { KonvaService } from '../core/services/konva.service';
 
 @Component({
   selector: 'app-sidebar',

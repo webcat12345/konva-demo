@@ -1,6 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import * as Konva from 'konva';
 
+import { LinkBtnStatus } from '../interfaces/link-btn-status';
+
 export enum POINTER {
   single = 1,
   multi = 2
@@ -59,6 +61,18 @@ export class KonvaService {
       };
       images[src].src = sources[src];
     }
+  }
+
+  getLinkedStatus(stage: any): LinkBtnStatus {
+    let status: LinkBtnStatus = {enable: false, link: true};
+    if (this.selectedItems.length < 2) {
+      status.enable = false;
+      status.link = true;
+    } else {
+      status.enable = true;
+      status.link = stage.findOne(`#${this.selectedItems[0]}-${this.selectedItems[1]}`) || stage.findOne(`#${this.selectedItems[1]}-${this.selectedItems[0]}`);
+    }
+    return status;
   }
 
   static createStage(container: string, width: number, height: number) {

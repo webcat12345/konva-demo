@@ -1,8 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { KonvaService } from './core/konva.service';
+import { KonvaService } from './core/services/konva.service';
 import * as Konva from 'konva';
-import { POINTER } from './core/konva.service';
-import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/konva.service';
+import { POINTER } from './core/services/konva.service';
+import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/services/konva.service';
+import { LinkBtnStatus } from './core/interfaces/link-btn-status';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,7 @@ export class AppComponent implements AfterViewInit{
   clickListenerZone: any; // custom rect
 
   pointer = POINTER.single; // settings
+  linkBtnStatus: LinkBtnStatus = {enable: false, link: true};
 
   constructor(
     public konvaService: KonvaService
@@ -65,20 +67,24 @@ export class AppComponent implements AfterViewInit{
     }
   }
 
-  join() {
-    if (this.konvaService.selectedItems.length < 2) {
-      return;
+  join(line: any) {
+    if (!line) {
+      const el_1 = this.stage.findOne(`#${this.konvaService.selectedItems[0]}`);
+      const el_2 = this.stage.findOne(`#${this.konvaService.selectedItems[1]}`);
+      this.lineLayer.add(KonvaService.drawLinkLine(el_1, el_2));
+      this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage); // get latest status
+      // this.konvaService.unSelectAll(this.stage); // we don't need to unselect all for now
+    } else {
+      line.destroy();
+      this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage); // get latest status
     }
-    const el_1 = this.stage.findOne(`#${this.konvaService.selectedItems[0]}`);
-    const el_2 = this.stage.findOne(`#${this.konvaService.selectedItems[1]}`);
-    this.lineLayer.add(KonvaService.drawLinkLine(el_1, el_2));
-    this.konvaService.unSelectAll(this.stage);
     this.lineLayer.draw();
     this.mainLayer.draw();
   }
 
   componentClick(event, type) {
     this.konvaService.layerClickedEvent(this.pointer, event, this.stage, type);
+    this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage);
     this.mainLayer.draw();
   }
 
