@@ -8,14 +8,11 @@ import { MaterialModule } from './shared/material/material.module';
 import { KonvaService } from './core/services/konva.service';
 
 import { AppComponent } from './app.component';
-import { PalletteComponent } from './pallette/pallette.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-
 
 @NgModule({
   declarations: [
     AppComponent,
-    PalletteComponent,
     SidebarComponent
   ],
   imports: [
