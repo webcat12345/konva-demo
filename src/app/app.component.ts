@@ -11,23 +11,23 @@ import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/konva.service';
 })
 export class AppComponent implements AfterViewInit{
 
-  stage: any;
-  backgroundLayer: any;
+  stage: any;             // main stage
+
+  backgroundLayer: any;   // layers
   mainLayer: any;
   lineLayer: any;
   tempLayer: any;
-  pointer = POINTER.single;
 
-  clickListenerZone: any;
+  clickListenerZone: any; // custom rect
 
-  tGroupAttrs: any;
+  pointer = POINTER.single; // settings
 
   constructor(
     public konvaService: KonvaService
   ) {}
 
   ngAfterViewInit() {
-    this.stage = this.konvaService.createStage('konvaboard', window.innerWidth, window.innerHeight);
+    this.stage = KonvaService.createStage('konvaboard', window.innerWidth, window.innerHeight);
     this.mainLayer = new Konva.Layer();
     this.lineLayer = new Konva.Layer();
     this.backgroundLayer = new Konva.Layer();
@@ -38,21 +38,7 @@ export class AppComponent implements AfterViewInit{
     this.stage.add(this.mainLayer);       // component layer
     this.stage.add(this.tempLayer);       // draggin layer
 
-    this.clickListenerZone = new Konva.Rect({
-      x: 0,
-      y: 0,
-      width: window.innerWidth,
-      height: window.innerHeight,
-      fill: 'white',
-      stroke: 'black',
-      strokeWidth: 0
-    });
-
-    this.clickListenerZone.on('click', (event) => {
-      this.konvaService.unSelectAll(this.stage);
-      this.mainLayer.draw();
-    });
-
+    this.handleBackgroundClickEventOnStage();
     this.handleDragEventOnStage();
 
     // add the click lis  tener zone to the layer
@@ -62,7 +48,7 @@ export class AppComponent implements AfterViewInit{
 
   add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
     if (type.id === 100 && type.name === 'group') {
-      const res = this.konvaService.addNewGroup();
+      const res = KonvaService.addNewGroup();
       res.rect.on('mousemove', (event) => this.groupMouseCursorHandle(event, 'mousemove'));
       res.rect.on('mouseout', (event) => this.groupMouseCursorHandle(event, 'mouseout'));
       res.group.on('dragstart', (event) => this.groupMouseCursorHandle(event, 'dragstart'));
@@ -73,7 +59,7 @@ export class AppComponent implements AfterViewInit{
     } else {
       const imageObj = new Image();
       imageObj.onload = (() => {
-        const el = this.konvaService.addNewComponent(imageObj, x, y, w, h);
+        const el = KonvaService.addNewComponent(imageObj, x, y, w, h);
         this.mainLayer.add(el);
         el.on('click', (event => this.componentClick(event, type)));
         el.on('dragmove', (event => this.componentDragMove(event)));
@@ -89,7 +75,7 @@ export class AppComponent implements AfterViewInit{
     }
     const el_1 = this.stage.findOne(`#${this.konvaService.selectedItems[0]}`);
     const el_2 = this.stage.findOne(`#${this.konvaService.selectedItems[1]}`);
-    this.lineLayer.add(this.konvaService.drawLinkLine(el_1, el_2));
+    this.lineLayer.add(KonvaService.drawLinkLine(el_1, el_2));
     this.konvaService.unSelectAll(this.stage);
     this.lineLayer.draw();
     this.mainLayer.draw();
@@ -115,7 +101,7 @@ export class AppComponent implements AfterViewInit{
         y2 = e2.className === 'Rect' ? e2.parent.attrs.y : e2.attrs.y;
         w2 = e2.attrs.width;
         h2 = e2.attrs.height;
-        line.attrs.points = this.konvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
+        line.attrs.points = KonvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
         this.stage.draw();
       } else if (event.target.attrs.id + 'rect' === e1.attrs.id) {
         x1 = event.target.attrs.x;
@@ -126,7 +112,7 @@ export class AppComponent implements AfterViewInit{
         y2 = e2.className === 'Rect' ? e2.parent.attrs.y : e2.attrs.y;
         w2 = e2.attrs.width;
         h2 = e2.attrs.height;
-        line.attrs.points = this.konvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
+        line.attrs.points = KonvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
         this.stage.draw();
       } else if (event.target.attrs.id === e2.attrs.id) {
         x2 = event.target.attrs.x;
@@ -137,7 +123,7 @@ export class AppComponent implements AfterViewInit{
         y1 = e1.className === 'Rect' ? e1.parent.attrs.y : e1.attrs.y;
         w1 = e1.attrs.width;
         h1 = e1.attrs.height;
-        line.attrs.points = this.konvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
+        line.attrs.points = KonvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
         this.stage.draw();
       } else if (event.target.attrs.id + 'rect' === e2.attrs.id) {
         x2 = event.target.attrs.x;
@@ -148,7 +134,7 @@ export class AppComponent implements AfterViewInit{
         y1 = e1.className === 'Rect' ? e1.parent.attrs.y : e1.attrs.y;
         w1 = e1.attrs.width;
         h1 = e1.attrs.height;
-        line.attrs.points = this.konvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
+        line.attrs.points = KonvaService.calculateLinkLine(x1, y1, x2, y2, w1, h1, w2, h2);
         this.stage.draw();
       }
     })
@@ -164,20 +150,13 @@ export class AppComponent implements AfterViewInit{
         this.stage.container().style.cursor = 'default';
       }
     } else if (method === 'dragstart') {
-      this.tGroupAttrs = {...event.target.attrs};
-      // if ((event.target.parent.attrs.x + event.target.attrs.width - 2) <= event.evt.offsetX && event.evt.offsetX <= (event.target.parent.attrs.x + event.target.attrs.width + 2)) {
-      //   this.stage.container().style.cursor = 'pointer';
-      //   this.fGroupDragging = true;
-      //   this.selectedGroup = event.target;
-      // }
+      // TODO: handle group rect events
     } else if (method === 'dragmove') {
-      // const el = event.target;
-      // el.draggable(false);
-      // console.log(event.evt.offsetX - this.selectedGroup.parent.x - this.selectedGroup.attrs.width);
+      // TODO: handle group rect events
     }
   }
 
-  handleDragEventOnStage() {
+  private handleDragEventOnStage() {
     this.stage.on('dragstart', (e) => {
       e.target.moveTo(this.tempLayer);
       this.mainLayer.draw();
@@ -221,8 +200,8 @@ export class AppComponent implements AfterViewInit{
       e.target.moveTo(this.mainLayer);
       if (group) {
         const item = this.stage.findOne(`#${e.target.getId()}`);
-        item.x(this.konvaService.getGroupPosition(group, rect.attrs.width, rect.attrs.height).x);
-        item.y(this.konvaService.getGroupPosition(group, rect.attrs.width, rect.attrs.height).y);
+        item.x(KonvaService.getGroupPosition(group, rect.attrs.width, rect.attrs.height).x);
+        item.y(KonvaService.getGroupPosition(group, rect.attrs.width, rect.attrs.height).y);
         item.draggable(false);
         item.moveTo(group);
       }
@@ -241,6 +220,23 @@ export class AppComponent implements AfterViewInit{
     });
 
     this.stage.on('drop', (e) => {
+      this.mainLayer.draw();
+    });
+  }
+
+  private handleBackgroundClickEventOnStage() {
+    this.clickListenerZone = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      fill: 'white',
+      stroke: 'black',
+      strokeWidth: 0
+    });
+
+    this.clickListenerZone.on('click', (event) => {
+      this.konvaService.unSelectAll(this.stage);
       this.mainLayer.draw();
     });
   }

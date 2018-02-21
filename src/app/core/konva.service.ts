@@ -21,7 +21,31 @@ export class KonvaService {
 
   constructor() { }
 
-  createStage(container: string, width: number, height: number) {
+  layerClickedEvent(pointer: POINTER, event, stage, type) {
+    const index = this.selectedItems.findIndex(x => x === event.target.attrs.id);
+    if (index > -1) {
+      KonvaService.selectElement(event.target, false);
+      this.selectedItems.splice(index, 1);
+    } else {
+      KonvaService.selectElement(event.target, true);
+      this.selectedItems.push(event.target.attrs.id);
+      this.showProperty.emit({type: type, id: event.target.attrs.id});
+      if (this.selectedItems.length > (pointer === POINTER.single ? 1 : 2)) { // selected items should be only 2
+        KonvaService.selectElement(stage.findOne(`#${this.selectedItems[0]}`), false);
+        this.selectedItems.splice(0, 1);
+      }
+    }
+  }
+
+  unSelectAll(stage) {
+    this.selectedItems.forEach(x => {
+      const el = stage.findOne(`#${x}`);
+      KonvaService.selectElement(el, false);
+    });
+    this.selectedItems = [];
+  }
+
+  static createStage(container: string, width: number, height: number) {
     return new Konva.Stage({
       container: container,
       width: width,
@@ -29,7 +53,7 @@ export class KonvaService {
     });
   }
 
-  addNewComponent(imageObj, x, y, w, h) {
+  static addNewComponent(imageObj, x, y, w, h) {
     const idString = new Date().getMilliseconds().toString();
     return new Konva.Image({
       x: x,
@@ -42,7 +66,7 @@ export class KonvaService {
     });
   }
 
-  addNewGroup() {
+  static addNewGroup() {
     const idString = new Date().getMilliseconds().toString();
     const rect = new Konva.Rect({id: idString + 'rect', x: 0, y: 0, width: 100, height: 200, stroke: '#0094ff', strokeWidth: 1, dash: [10, 2], fill: 'white'});
     const group = new Konva.Group({draggable: true, x: 0, y: 0, id: idString});
@@ -50,7 +74,7 @@ export class KonvaService {
     return {group: group, rect: rect};
   }
 
-  selectElement(el, selectFlag: boolean) {
+  static selectElement(el, selectFlag: boolean) {
     if (el.className === 'Rect') {
       if (selectFlag) {
         el.attrs.stroke = '#005eff';
@@ -70,31 +94,7 @@ export class KonvaService {
     }
   }
 
-  layerClickedEvent(pointer: POINTER, event, stage, type) {
-    const index = this.selectedItems.findIndex(x => x === event.target.attrs.id);
-    if (index > -1) {
-      this.selectElement(event.target, false);
-      this.selectedItems.splice(index, 1);
-    } else {
-      this.selectElement(event.target, true);
-      this.selectedItems.push(event.target.attrs.id);
-      this.showProperty.emit({type: type, id: event.target.attrs.id});
-      if (this.selectedItems.length > (pointer === POINTER.single ? 1 : 2)) { // selected items should be only 2
-        this.selectElement(stage.findOne(`#${this.selectedItems[0]}`), false);
-        this.selectedItems.splice(0, 1);
-      }
-    }
-  }
-
-  unSelectAll(stage) {
-    this.selectedItems.forEach(x => {
-      const el = stage.findOne(`#${x}`);
-      this.selectElement(el, false);
-    });
-    this.selectedItems = [];
-  }
-
-  calculateLinkLine(x1, y1, x2, y2, w1 = ELEMENT_WIDTH, h1 = ELEMENT_HEIGHT, w2 = ELEMENT_WIDTH, h2 = ELEMENT_HEIGHT) {
+  static calculateLinkLine(x1, y1, x2, y2, w1 = ELEMENT_WIDTH, h1 = ELEMENT_HEIGHT, w2 = ELEMENT_WIDTH, h2 = ELEMENT_HEIGHT) {
     let linePoints = [];
     const cx1 = x1 + w1 / 2;
     const cy1 = y1 + h1 / 2;
@@ -128,7 +128,7 @@ export class KonvaService {
     return linePoints;
   }
 
-  drawLinkLine(e1, e2) {
+  static drawLinkLine(e1, e2) {
     const x1 = e1.className === 'Rect' ? e1.parent.attrs.x : e1.attrs.x;
     const w1 = e1.className === 'Rect' ? e1.attrs.width : ELEMENT_WIDTH;
     const y1 = e1.className === 'Rect' ? e1.parent.attrs.y : e1.attrs.y;
@@ -138,7 +138,7 @@ export class KonvaService {
     const y2 = e2.className === 'Rect' ? e2.parent.attrs.y : e2.attrs.y;
     const h2 = e2.className === 'Rect' ? e2.attrs.height : ELEMENT_HEIGHT;
     return new Konva.Arrow({
-      points: this.calculateLinkLine(x1, y1, x2, y2, w1 , h1, w2, h2),
+      points: KonvaService.calculateLinkLine(x1, y1, x2, y2, w1 , h1, w2, h2),
       stroke: '#545454',
       strokeWidth: 1,
       lineCap: 'round',
@@ -148,7 +148,7 @@ export class KonvaService {
     });
   }
 
-  getGroupPosition(group, width, height) {
+  static getGroupPosition(group, width, height) {
     const ox = width / 2;
     const oy = height / 2;
     const length = group.children.length - 1;
