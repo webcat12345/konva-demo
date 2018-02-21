@@ -45,6 +45,21 @@ export class KonvaService {
     this.selectedItems = [];
   }
 
+  loadImageSources(sources, callback) {
+    let images = {};
+    let loadedImages = 0;
+    let numImages = Object.keys(sources).length;
+    for (const src in sources) {
+      images[src] = new Image();
+      images[src].onload = () => {
+        if (++loadedImages >= numImages) {
+          callback(images)
+        }
+      };
+      images[src].src = sources[src];
+    }
+  }
+
   static createStage(container: string, width: number, height: number) {
     return new Konva.Stage({
       container: container,

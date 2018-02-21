@@ -17,6 +17,7 @@ export class AppComponent implements AfterViewInit{
   mainLayer: any;
   lineLayer: any;
   tempLayer: any;
+  paletteLayer: any;
 
   clickListenerZone: any; // custom rect
 
@@ -32,18 +33,17 @@ export class AppComponent implements AfterViewInit{
     this.lineLayer = new Konva.Layer();
     this.backgroundLayer = new Konva.Layer();
     this.tempLayer = new Konva.Layer();
+    this.paletteLayer = new Konva.Layer();
 
     this.stage.add(this.backgroundLayer); // hack background click event
     this.stage.add(this.lineLayer);       // linked lines
     this.stage.add(this.mainLayer);       // component layer
-    this.stage.add(this.tempLayer);       // draggin layer
+    this.stage.add(this.tempLayer);       // dragging layer
+    this.stage.add(this.paletteLayer);    // palette layer
 
+    this.drawPaletteBox();
     this.handleBackgroundClickEventOnStage();
-    this.handleDragEventOnStage();
-
-    // add the click lis  tener zone to the layer
-    this.backgroundLayer.add(this.clickListenerZone);
-    this.backgroundLayer.draw();
+    // this.handleDragEventOnStage();
   }
 
   add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
@@ -238,6 +238,42 @@ export class AppComponent implements AfterViewInit{
     this.clickListenerZone.on('click', (event) => {
       this.konvaService.unSelectAll(this.stage);
       this.mainLayer.draw();
+    });
+
+    // add the click lis  tener zone to the layer
+    this.backgroundLayer.add(this.clickListenerZone);
+    this.backgroundLayer.draw();
+
+  }
+
+  private drawPaletteBox() {
+    const sources = {
+      frame: 'assets/palette_frame.svg',
+      ai: 'assets/svg/ai.svg',
+      afterEffect: 'assets/svg/after-effects.svg',
+      audition: 'assets/svg/audition.svg',
+      avi: 'assets/svg/avi.svg',
+      bridge: 'assets/svg/bridge.svg',
+      css: 'assets/svg/css.svg',
+      group: 'assets/svg/collaboration.svg'
+    };
+    const paletteGroup = new Konva.Group({x: 5, y: 5, draggable: false});
+    this.konvaService.loadImageSources(sources, (images) => {
+      const paletteFrame = new Konva.Image({x: 0, y: 0, image: images.frame, width: 49, height: 286, draggable: false,
+            shadowColor: 'black', shadowBlur: 5,
+            shadowOffset: {x : 2, y : 2},
+            shadowOpacity: 0.2});
+      paletteGroup.add(paletteFrame);
+      let index = 0;
+      for (const item in images) {
+        if (item !== 'frame') {
+          const btn = new Konva.Image({x: 10, y: 23 + index * 36, image: images[item], width: 30, height: 30, draggable: false})
+          paletteGroup.add(btn);
+          index ++;
+        }
+      }
+      this.paletteLayer.add(paletteGroup);
+      this.paletteLayer.draw();
     });
   }
 }
