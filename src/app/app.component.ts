@@ -43,12 +43,12 @@ export class AppComponent implements AfterViewInit{
 
     this.drawPaletteBox();
     this.handleBackgroundClickEventOnStage();
-    // this.handleDragEventOnStage();
+    this.handleDragEventOnStage();
   }
 
-  add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
-    if (type.id === 100 && type.name === 'group') {
-      const res = KonvaService.addNewGroup();
+  addFromDrag(element) {
+    if (element.name === 'group') {
+      const res = KonvaService.addNewGroup(element.x, element.y);
       res.rect.on('mousemove', (event) => this.groupMouseCursorHandle(event, 'mousemove'));
       res.rect.on('mouseout', (event) => this.groupMouseCursorHandle(event, 'mouseout'));
       res.group.on('dragstart', (event) => this.groupMouseCursorHandle(event, 'dragstart'));
@@ -57,15 +57,11 @@ export class AppComponent implements AfterViewInit{
       this.mainLayer.add(res.group);
       this.mainLayer.draw();
     } else {
-      const imageObj = new Image();
-      imageObj.onload = (() => {
-        const el = KonvaService.addNewComponent(imageObj, x, y, w, h);
-        this.mainLayer.add(el);
-        el.on('click', (event => this.componentClick(event, type)));
-        el.on('dragmove', (event => this.componentDragMove(event)));
-        this.mainLayer.draw();
-      });
-      imageObj.src = `/assets/svg/${type.file}`;
+      const el = KonvaService.addNewComponent(element.image, element.x, element.y, element.width, element.height);
+      this.mainLayer.add(el);
+      el.on('click', (event => this.componentClick(event, element.name)));
+      el.on('dragmove', (event => this.componentDragMove(event)));
+      this.mainLayer.draw();
     }
   }
 
@@ -267,11 +263,23 @@ export class AppComponent implements AfterViewInit{
       let index = 0;
       for (const item in images) {
         if (item !== 'frame') {
-          const btn = new Konva.Image({x: 10, y: 23 + index * 36, image: images[item], width: 30, height: 30, draggable: false})
+          const btn = new Konva.Image({name: item, x: 10, y: 23 + index * 36, image: images[item], width: 30, height: 30, draggable: true});
+          const btnPos =  {x: 10, y: 23 + index * 36};
           paletteGroup.add(btn);
           index ++;
+
+          btn.on('dragend', (event) => {
+            this.addFromDrag(event.target.attrs);
+            event.target.x(btnPos.x);
+            event.target.y(btnPos.y);
+            this.paletteLayer.draw();
+          });
         }
       }
+      // stop all propagation from palette layer
+      this.paletteLayer.on('dragstart', (evt) => {evt.cancelBubble = true});
+      this.paletteLayer.on('dragmove', (evt) => {evt.cancelBubble = true});
+      this.paletteLayer.on('dragend', (evt) => {evt.cancelBubble = true});
       this.paletteLayer.add(paletteGroup);
       this.paletteLayer.draw();
     });
