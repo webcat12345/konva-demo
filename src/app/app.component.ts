@@ -256,15 +256,17 @@ export class AppComponent implements AfterViewInit{
     const paletteGroup = new Konva.Group({x: 5, y: 5, draggable: false});
     this.konvaService.loadImageSources(sources, (images) => {
       const paletteFrame = new Konva.Image({x: 0, y: 0, image: images.frame, width: 49, height: 286, draggable: false,
-            shadowColor: 'black', shadowBlur: 5,
+            shadowColor: 'black',
+            shadowBlur: 5,
             shadowOffset: {x : 2, y : 2},
             shadowOpacity: 0.2});
       paletteGroup.add(paletteFrame);
       let index = 0;
       for (const item in images) {
         if (item !== 'frame') {
-          const btn = new Konva.Image({name: item, x: 10, y: 23 + index * 36, image: images[item], width: 30, height: 30, draggable: true});
-          const btnPos =  {x: 10, y: 23 + index * 36};
+          const heightOffset = index * (ELEMENT_HEIGHT + 6) + 23;
+          const btn = new Konva.Image({name: item, x: 10, y: heightOffset, image: images[item], width: ELEMENT_WIDTH, height: ELEMENT_HEIGHT, draggable: true});
+          const btnPos =  {x: 10, y: heightOffset};
           paletteGroup.add(btn);
           index ++;
 
@@ -276,7 +278,7 @@ export class AppComponent implements AfterViewInit{
           });
         }
       }
-      // stop all propagation from palette layer
+      // stop drag and drop propagation from palette layer
       this.paletteLayer.on('dragstart', (evt) => {evt.cancelBubble = true});
       this.paletteLayer.on('dragmove', (evt) => {evt.cancelBubble = true});
       this.paletteLayer.on('dragend', (evt) => {evt.cancelBubble = true});
