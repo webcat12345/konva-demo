@@ -17,6 +17,7 @@ export class AppComponent implements AfterViewInit{
   mainLayer: any;
   lineLayer: any;
   tempLayer: any;
+  paletteLayer: any;
 
   clickListenerZone: any; // custom rect
 
@@ -32,23 +33,22 @@ export class AppComponent implements AfterViewInit{
     this.lineLayer = new Konva.Layer();
     this.backgroundLayer = new Konva.Layer();
     this.tempLayer = new Konva.Layer();
+    this.paletteLayer = new Konva.Layer();
 
     this.stage.add(this.backgroundLayer); // hack background click event
     this.stage.add(this.lineLayer);       // linked lines
     this.stage.add(this.mainLayer);       // component layer
-    this.stage.add(this.tempLayer);       // draggin layer
+    this.stage.add(this.tempLayer);       // dragging layer
+    this.stage.add(this.paletteLayer);    // palette layer
 
+    this.drawPaletteBox();
     this.handleBackgroundClickEventOnStage();
     this.handleDragEventOnStage();
-
-    // add the click lis  tener zone to the layer
-    this.backgroundLayer.add(this.clickListenerZone);
-    this.backgroundLayer.draw();
   }
 
-  add(type, x = 0, y = 0, w = ELEMENT_WIDTH, h = ELEMENT_HEIGHT) {
-    if (type.id === 100 && type.name === 'group') {
-      const res = KonvaService.addNewGroup();
+  addFromDrag(element) {
+    if (element.name === 'group') {
+      const res = KonvaService.addNewGroup(element.x, element.y);
       res.rect.on('mousemove', (event) => this.groupMouseCursorHandle(event, 'mousemove'));
       res.rect.on('mouseout', (event) => this.groupMouseCursorHandle(event, 'mouseout'));
       res.group.on('dragstart', (event) => this.groupMouseCursorHandle(event, 'dragstart'));
@@ -57,15 +57,11 @@ export class AppComponent implements AfterViewInit{
       this.mainLayer.add(res.group);
       this.mainLayer.draw();
     } else {
-      const imageObj = new Image();
-      imageObj.onload = (() => {
-        const el = KonvaService.addNewComponent(imageObj, x, y, w, h);
-        this.mainLayer.add(el);
-        el.on('click', (event => this.componentClick(event, type)));
-        el.on('dragmove', (event => this.componentDragMove(event)));
-        this.mainLayer.draw();
-      });
-      imageObj.src = `/assets/svg/${type.file}`;
+      const el = KonvaService.addNewComponent(element.image, element.x, element.y, element.width, element.height);
+      this.mainLayer.add(el);
+      el.on('click', (event => this.componentClick(event, element.name)));
+      el.on('dragmove', (event => this.componentDragMove(event)));
+      this.mainLayer.draw();
     }
   }
 
@@ -238,6 +234,54 @@ export class AppComponent implements AfterViewInit{
     this.clickListenerZone.on('click', (event) => {
       this.konvaService.unSelectAll(this.stage);
       this.mainLayer.draw();
+    });
+
+    // add the click lis  tener zone to the layer
+    this.backgroundLayer.add(this.clickListenerZone);
+    this.backgroundLayer.draw();
+
+  }
+
+  private drawPaletteBox() {
+    const sources = {
+      frame: 'assets/palette_frame.svg',
+      ai: 'assets/svg/ai.svg',
+      afterEffect: 'assets/svg/after-effects.svg',
+      audition: 'assets/svg/audition.svg',
+      avi: 'assets/svg/avi.svg',
+      bridge: 'assets/svg/bridge.svg',
+      css: 'assets/svg/css.svg',
+      group: 'assets/svg/collaboration.svg'
+    };
+    const paletteGroup = new Konva.Group({x: 5, y: 5, draggable: false});
+    this.konvaService.loadImageSources(sources, (images) => {
+      const paletteFrame = new Konva.Image({x: 0, y: 0, image: images.frame, width: 49, height: 286, draggable: false,
+            shadowColor: 'black', shadowBlur: 5,
+            shadowOffset: {x : 2, y : 2},
+            shadowOpacity: 0.2});
+      paletteGroup.add(paletteFrame);
+      let index = 0;
+      for (const item in images) {
+        if (item !== 'frame') {
+          const btn = new Konva.Image({name: item, x: 10, y: 23 + index * 36, image: images[item], width: 30, height: 30, draggable: true});
+          const btnPos =  {x: 10, y: 23 + index * 36};
+          paletteGroup.add(btn);
+          index ++;
+
+          btn.on('dragend', (event) => {
+            this.addFromDrag(event.target.attrs);
+            event.target.x(btnPos.x);
+            event.target.y(btnPos.y);
+            this.paletteLayer.draw();
+          });
+        }
+      }
+      // stop all propagation from palette layer
+      this.paletteLayer.on('dragstart', (evt) => {evt.cancelBubble = true});
+      this.paletteLayer.on('dragmove', (evt) => {evt.cancelBubble = true});
+      this.paletteLayer.on('dragend', (evt) => {evt.cancelBubble = true});
+      this.paletteLayer.add(paletteGroup);
+      this.paletteLayer.draw();
     });
   }
 }

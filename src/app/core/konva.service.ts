@@ -29,7 +29,8 @@ export class KonvaService {
     } else {
       KonvaService.selectElement(event.target, true);
       this.selectedItems.push(event.target.attrs.id);
-      this.showProperty.emit({type: type, id: event.target.attrs.id});
+      // TODO: handle property show
+      // this.showProperty.emit({type: type, id: event.target.attrs.id});
       if (this.selectedItems.length > (pointer === POINTER.single ? 1 : 2)) { // selected items should be only 2
         KonvaService.selectElement(stage.findOne(`#${this.selectedItems[0]}`), false);
         this.selectedItems.splice(0, 1);
@@ -43,6 +44,21 @@ export class KonvaService {
       KonvaService.selectElement(el, false);
     });
     this.selectedItems = [];
+  }
+
+  loadImageSources(sources, callback) {
+    let images = {};
+    let loadedImages = 0;
+    let numImages = Object.keys(sources).length;
+    for (const src in sources) {
+      images[src] = new Image();
+      images[src].onload = () => {
+        if (++loadedImages >= numImages) {
+          callback(images)
+        }
+      };
+      images[src].src = sources[src];
+    }
   }
 
   static createStage(container: string, width: number, height: number) {
@@ -66,10 +82,10 @@ export class KonvaService {
     });
   }
 
-  static addNewGroup() {
+  static addNewGroup(px = 0, py = 0) {
     const idString = new Date().getMilliseconds().toString();
     const rect = new Konva.Rect({id: idString + 'rect', x: 0, y: 0, width: 100, height: 200, stroke: '#0094ff', strokeWidth: 1, dash: [10, 2], fill: 'white'});
-    const group = new Konva.Group({draggable: true, x: 0, y: 0, id: idString});
+    const group = new Konva.Group({draggable: true, x: px, y: py, id: idString});
     group.add(rect);
     return {group: group, rect: rect};
   }
