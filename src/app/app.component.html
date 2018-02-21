@@ -3,15 +3,15 @@
   <div class="button-group">
     <mat-button-toggle-group #groupSelector="matButtonToggleGroup" (change)="pointer = +$event.value">
       <mat-button-toggle value="1" checked="true">
-        <mat-icon>done</mat-icon>
+        <i class="fa fa-mouse-pointer"></i>
       </mat-button-toggle>
       <mat-button-toggle value="2">
-        <mat-icon>done_all</mat-icon>
+        <i class="fa fa-magic"></i>
       </mat-button-toggle>
     </mat-button-toggle-group>
-    <a mat-icon-button (click)="join()" [disabled]="konvaService.selectedItems.length < 2">
-      <mat-icon>link</mat-icon>
-    </a>
+    <button mat-icon-button (click)="join(linkBtnStatus.link)" [disabled]="!linkBtnStatus.enable">
+      <i [ngClass]="!linkBtnStatus.link ? 'fa fa-link' : 'fa fa-unlink'"></i>
+    </button>
   </div>
 </div>
 <div class="main">

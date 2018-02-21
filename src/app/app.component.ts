@@ -1,8 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { KonvaService } from './core/konva.service';
+import { KonvaService } from './core/services/konva.service';
 import * as Konva from 'konva';
-import { POINTER } from './core/konva.service';
-import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/konva.service';
+import { POINTER } from './core/services/konva.service';
+import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/services/konva.service';
+import { LinkBtnStatus } from './core/interfaces/link-btn-status';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,7 @@ export class AppComponent implements AfterViewInit{
   clickListenerZone: any; // custom rect
 
   pointer = POINTER.single; // settings
+  linkBtnStatus: LinkBtnStatus = {enable: false, link: true};
 
   constructor(
     public konvaService: KonvaService
@@ -65,20 +67,24 @@ export class AppComponent implements AfterViewInit{
     }
   }
 
-  join() {
-    if (this.konvaService.selectedItems.length < 2) {
-      return;
+  join(line: any) {
+    if (!line) {
+      const el_1 = this.stage.findOne(`#${this.konvaService.selectedItems[0]}`);
+      const el_2 = this.stage.findOne(`#${this.konvaService.selectedItems[1]}`);
+      this.lineLayer.add(KonvaService.drawLinkLine(el_1, el_2));
+      this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage); // get latest status
+      // this.konvaService.unSelectAll(this.stage); // we don't need to unselect all for now
+    } else {
+      line.destroy();
+      this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage); // get latest status
     }
-    const el_1 = this.stage.findOne(`#${this.konvaService.selectedItems[0]}`);
-    const el_2 = this.stage.findOne(`#${this.konvaService.selectedItems[1]}`);
-    this.lineLayer.add(KonvaService.drawLinkLine(el_1, el_2));
-    this.konvaService.unSelectAll(this.stage);
     this.lineLayer.draw();
     this.mainLayer.draw();
   }
 
   componentClick(event, type) {
     this.konvaService.layerClickedEvent(this.pointer, event, this.stage, type);
+    this.linkBtnStatus = this.konvaService.getLinkedStatus(this.stage);
     this.mainLayer.draw();
   }
 
@@ -256,15 +262,17 @@ export class AppComponent implements AfterViewInit{
     const paletteGroup = new Konva.Group({x: 5, y: 5, draggable: false});
     this.konvaService.loadImageSources(sources, (images) => {
       const paletteFrame = new Konva.Image({x: 0, y: 0, image: images.frame, width: 49, height: 286, draggable: false,
-            shadowColor: 'black', shadowBlur: 5,
+            shadowColor: 'black',
+            shadowBlur: 5,
             shadowOffset: {x : 2, y : 2},
             shadowOpacity: 0.2});
       paletteGroup.add(paletteFrame);
       let index = 0;
       for (const item in images) {
         if (item !== 'frame') {
-          const btn = new Konva.Image({name: item, x: 10, y: 23 + index * 36, image: images[item], width: 30, height: 30, draggable: true});
-          const btnPos =  {x: 10, y: 23 + index * 36};
+          const heightOffset = index * (ELEMENT_HEIGHT + 6) + 23;
+          const btn = new Konva.Image({name: item, x: 10, y: heightOffset, image: images[item], width: ELEMENT_WIDTH, height: ELEMENT_HEIGHT, draggable: true});
+          const btnPos =  {x: 10, y: heightOffset};
           paletteGroup.add(btn);
           index ++;
 
@@ -276,7 +284,7 @@ export class AppComponent implements AfterViewInit{
           });
         }
       }
-      // stop all propagation from palette layer
+      // stop drag and drop propagation from palette layer
       this.paletteLayer.on('dragstart', (evt) => {evt.cancelBubble = true});
       this.paletteLayer.on('dragmove', (evt) => {evt.cancelBubble = true});
       this.paletteLayer.on('dragend', (evt) => {evt.cancelBubble = true});
