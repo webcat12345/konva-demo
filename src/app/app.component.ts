@@ -1,5 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { KonvaService } from './core/services/konva.service';
+import { PropertyService } from './core/services/property.service';
 import * as Konva from 'konva';
 import { POINTER } from './core/services/konva.service';
 import { ELEMENT_HEIGHT, ELEMENT_WIDTH } from './core/services/konva.service';
@@ -26,7 +27,8 @@ export class AppComponent implements AfterViewInit{
   linkBtnStatus: LinkBtnStatus = {enable: false, link: true};
 
   constructor(
-    public konvaService: KonvaService
+    public konvaService: KonvaService,
+    private propertyService: PropertyService
   ) {}
 
   ngAfterViewInit() {
@@ -59,11 +61,12 @@ export class AppComponent implements AfterViewInit{
       this.mainLayer.add(res.group);
       this.mainLayer.draw();
     } else {
-      const el = KonvaService.addNewComponent(element.image, element.x, element.y, element.width, element.height);
+      const el = KonvaService.addNewComponent(element.image, element.x, element.y, element.width, element.height, element.name);
       this.mainLayer.add(el);
       el.on('click', (event => this.componentClick(event, element.name)));
       el.on('dragmove', (event => this.componentDragMove(event)));
       this.mainLayer.draw();
+      this.propertyService.create(el.id(), el.name(), el);
     }
   }
 

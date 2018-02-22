@@ -6,6 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './shared/material/material.module';
 
 import { KonvaService } from './core/services/konva.service';
+import { PropertyService } from './core/services/property.service';
 
 import { AppComponent } from './app.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -22,7 +23,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     FormsModule
   ],
   providers: [
-    KonvaService
+    KonvaService,
+    PropertyService
   ],
   bootstrap: [AppComponent]
 })
