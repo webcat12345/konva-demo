@@ -3,9 +3,15 @@ export class NodeElement {
   name: string; // type
   object?: any; // canvas object
 
-  constructor() {
-    this.id = '';
-    this.name = '';
-    this.object = {};
+  constructor(id = '', name = '', object = '') {
+    this.id = id;
+    this.name = name;
+    this.object = object;
+  }
+
+  initNode(node: NodeElement) {
+    this.id = node.id;
+    this.name = node.name;
+    this.object = node.object;
   }
 }
