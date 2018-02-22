@@ -22,20 +22,39 @@ export class SidebarComponent implements OnInit, OnDestroy {
   showPropertySubscription: Subscription = new Subscription();
 
   selectedObject: NodeElement | AiElement | AviElement | AfterEffectElement | AuditionElement | GroupElement | CssElement | BridgeElement = null;
+  properties: string[] = [];
 
   constructor(
     private konvaService: KonvaService,
-    private propertService: PropertyService
+    private propertyService: PropertyService
   ) { }
 
   ngOnInit() {
     this.showPropertySubscription = this.konvaService.showProperty.subscribe((evt: PropertyEvent) => {
-      this.selectedObject = this.propertService.getElementPropertyById(evt.id);
+      this.selectedObject = this.propertyService.getElementPropertyById(evt.id);
+      this.buildForm();
     });
   }
 
   ngOnDestroy() {
     this.showPropertySubscription.unsubscribe();
+  }
+
+  buildForm() {
+    try {
+      this.properties = [];
+      Object.keys(this.selectedObject).forEach(pro => {
+        if (pro !== 'id' && pro !== 'name' && pro !== 'object') {
+          this.properties.push(pro);
+        }
+      })
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  saveProperty() {
+    const flag = this.propertyService.saveElementPropertyById(this.selectedObject.id, this.selectedObject);
   }
 
 }

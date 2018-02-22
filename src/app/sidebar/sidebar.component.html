@@ -11,6 +11,17 @@
           <input type="text" [(ngModel)]="selectedObject.name" disabled>
         </div>
       </div>
+
+      <div class="property-group">
+        <span class="group-label">Customize</span>
+        <div class="group-content">
+          <ng-container *ngFor="let prop of properties">
+            <label class="uppercase-label">{{ prop }}</label>
+            <input type="text" [(ngModel)]="selectedObject[prop]">
+          </ng-container>
+          <button class="btn btn-property-save" (click)="saveProperty()">Save</button>
+        </div>
+      </div>
     </ng-container>
     <ng-template #nothing>
       <div class="no-selected">No item selected.</div>

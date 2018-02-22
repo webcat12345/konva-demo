@@ -54,4 +54,15 @@ export class PropertyService {
     }
   }
 
+  saveElementPropertyById(id: string, element) {
+    try {
+      const node = this.table.nodes.find(x => x.id === id);
+      const table = this.table.getIndividualTable(node.name);
+      const index = table.findIndex(x => x.id === node.id);
+      table[index] = {...element};
+      return {success: true}
+    } catch (e) {
+      return {success: false}
+    }
+  }
 }
