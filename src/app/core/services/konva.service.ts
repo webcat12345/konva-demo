@@ -32,6 +32,7 @@ export class KonvaService {
       KonvaService.selectElement(event.target, true);
       this.selectedItems.push(event.target.attrs.id);
       // TODO: handle property show
+      console.log(event.target.attrs);
       // this.showProperty.emit({type: type, id: event.target.attrs.id});
       if (this.selectedItems.length > (pointer === POINTER.single ? 1 : 2)) { // selected items should be only 2
         KonvaService.selectElement(stage.findOne(`#${this.selectedItems[0]}`), false);
@@ -83,7 +84,7 @@ export class KonvaService {
     });
   }
 
-  static addNewComponent(imageObj, x, y, w, h) {
+  static addNewComponent(imageObj, x, y, w, h, name) {
     const idString = new Date().getMilliseconds().toString();
     return new Konva.Image({
       x: x,
@@ -92,7 +93,8 @@ export class KonvaService {
       height: h,
       image: imageObj,
       draggable: true,
-      id: idString
+      id: idString,
+      name: name
     });
   }
 

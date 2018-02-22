@@ -59,7 +59,7 @@ export class AppComponent implements AfterViewInit{
       this.mainLayer.add(res.group);
       this.mainLayer.draw();
     } else {
-      const el = KonvaService.addNewComponent(element.image, element.x, element.y, element.width, element.height);
+      const el = KonvaService.addNewComponent(element.image, element.x, element.y, element.width, element.height, element.name);
       this.mainLayer.add(el);
       el.on('click', (event => this.componentClick(event, element.name)));
       el.on('dragmove', (event => this.componentDragMove(event)));
