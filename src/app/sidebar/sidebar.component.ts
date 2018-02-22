@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { KonvaService } from '../core/services/konva.service';
+import { PropertyEvent } from '../core/interfaces/property-event';
 
 @Component({
   selector: 'app-sidebar',
@@ -18,10 +19,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.showPropertySubscription = this.konvaService.showProperty.subscribe(data => {
-      this.selectedObject = {};
-      this.selectedObject.id = data.id;
-      this.selectedObject.type = data.type.name;
+    this.showPropertySubscription = this.konvaService.showProperty.subscribe((evt: PropertyEvent) => {
+      console.log(evt);
+      // this.selectedObject = {};
+      // this.selectedObject.id = data.id;
+      // this.selectedObject.type = data.type.name;
     });
   }
 

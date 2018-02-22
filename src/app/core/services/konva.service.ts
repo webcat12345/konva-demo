@@ -2,6 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import * as Konva from 'konva';
 
 import { LinkBtnStatus } from '../interfaces/link-btn-status';
+import { PropertyEvent } from '../interfaces/property-event';
 
 export enum POINTER {
   single = 1,
@@ -31,9 +32,10 @@ export class KonvaService {
     } else {
       KonvaService.selectElement(event.target, true);
       this.selectedItems.push(event.target.attrs.id);
-      // TODO: handle property show
-      console.log(event.target.attrs);
-      // this.showProperty.emit({type: type, id: event.target.attrs.id});
+      // send selected object info to sidebar component
+      const evt: PropertyEvent = {id: event.target.attrs.id, type: event.target.attrs.name, object: event.target};
+      this.showProperty.emit(evt);
+
       if (this.selectedItems.length > (pointer === POINTER.single ? 1 : 2)) { // selected items should be only 2
         KonvaService.selectElement(stage.findOne(`#${this.selectedItems[0]}`), false);
         this.selectedItems.splice(0, 1);
